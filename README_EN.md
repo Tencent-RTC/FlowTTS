@@ -122,7 +122,9 @@ http_profile.pre_conn_pool_size = 3  # Connection pool size
 
 ## TRTC AI Conversation Integration
 
-Add TTS configuration in TRTC AI Conversation settings:
+Add TTS configuration in TRTC AI Conversation settings, `TTSConfig`:
+
+- [AI Conversation TTS Configuration](https://cloud.tencent.com/document/product/647/115414)
 
 ```json
 {

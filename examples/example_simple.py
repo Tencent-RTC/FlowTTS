@@ -25,14 +25,15 @@ MODEL = "flow_01_turbo"
 
 VOICE_CONFIG = {
     "VoiceId": "v-female-R2s4N9qJ",  # Voice ID
-    "Speed": 1.0,                    # Speed: 0.5 ~ 2.0
-    "Volume": 0,                     # Volume: -10 ~ 10
-    "Pitch": 0                       # Pitch: -10 ~ 10
+    "Speed": 1.0,                    # Speed: [0.5, 2.0], default 1.0
+    "Volume": 1.0,                   # Volume: [0, 10], default 1.0
+    "Pitch": 0,                      # Pitch: [-12, 12], default 0
+    "Language": "zh"                 # Language: zh/en/yue/ja/ko, default auto
 }
 
 AUDIO_FORMAT = {
-    "Format": "pcm",      # API returns PCM data
-    "SampleRate": 24000   # 8000, 16000, 24000, 48000
+    "Format": "pcm",      # Streaming SSE only supports pcm
+    "SampleRate": 24000   # Sample rate: 16000 or 24000
 }
 # ===================================
 
