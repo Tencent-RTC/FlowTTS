@@ -73,9 +73,25 @@ TENCENTCLOUD_SDK_APP_ID=1400000000
 
 Get credentials from [Tencent Cloud Console](https://console.cloud.tencent.com/cam/capi)
 
-### 4. Run Example
+### 4. Run Examples
+
+#### Basic TTS Example
 
 ```bash
+python examples/example_simple.py
+```
+
+#### Voice Clone Example
+
+```bash
+# 1. Prepare audio sample (16kHz mono WAV, 10-180 seconds)
+cp your_voice.wav test_data/clone_sample.wav
+
+# 2. Clone voice and get voice_id
+python examples/example_voice_clone.py
+
+# 3. Use the returned voice_id in example_simple.py for TTS
+# Update VOICE_CONFIG["VoiceId"] with the cloned voice_id
 python examples/example_simple.py
 ```
 

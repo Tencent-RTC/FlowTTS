@@ -47,6 +47,7 @@ htmlcov/
 
 # Audio output files
 *.wav
+!test_data/*.wav
 *.pcm
 *.mp3
 output/

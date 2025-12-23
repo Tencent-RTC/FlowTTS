@@ -75,7 +75,23 @@ TENCENTCLOUD_SDK_APP_ID=1400000000
 
 ### 4. 运行示例
 
+#### 基础 TTS 示例
+
 ```bash
+python examples/example_simple.py
+```
+
+#### 声音克隆示例
+
+```bash
+# 1. 准备音频样本（16kHz 单声道 WAV，10-180秒）
+cp your_voice.wav test_data/clone_sample.wav
+
+# 2. 克隆声音，获取 voice_id
+python examples/example_voice_clone.py
+
+# 3. 在 example_simple.py 中使用返回的 voice_id 进行 TTS 合成
+# 修改 VOICE_CONFIG["VoiceId"] 为克隆返回的 voice_id
 python examples/example_simple.py
 ```
 
