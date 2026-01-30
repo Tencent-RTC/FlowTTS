@@ -102,7 +102,7 @@ python examples/example_simple.py
 | 参数 | 范围 | 说明 |
 |------|------|------|
 | Speed | 0.5 ~ 2.0 | 语速 |
-| Volume | 0 ~ 10 | 音量 |
+| Volume | 0.01 ~ 10 | 音量（必须大于0） |
 | Pitch | -12 ~ 12 | 音高 |
 
 ### 音频格式
