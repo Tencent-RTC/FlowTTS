@@ -102,7 +102,7 @@ python examples/example_simple.py
 | Parameter | Range | Description |
 |-----------|-------|-------------|
 | Speed | 0.5 ~ 2.0 | Speech speed |
-| Volume | 0 ~ 10 | Volume level |
+| Volume | 0.01 ~ 10 | Volume level (must be > 0) |
 | Pitch | -12 ~ 12 | Pitch adjustment |
 
 ### Audio Format
