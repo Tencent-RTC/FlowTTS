@@ -26,7 +26,7 @@ CLONE_AUDIO_FILE = os.path.join(os.path.dirname(__file__), "../../test_data/clon
 VOICE_NAME = "MyClonedVoice"
 # (Optional) Transcript of the reference audio, improves clone quality
 PROMPT_TEXT = ""
-# (Optional) Language of the reference audio (ISO 639-1): zh/en/yue/ja/ko, default auto
+# (Optional) Language of the reference audio (ISO 639-1): zh/en/yue/ja/ko/ar/id/th, default auto
 LANGUAGE = ""
 # ===================================
 

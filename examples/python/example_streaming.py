@@ -28,7 +28,7 @@ VOICE_CONFIG = {
     "Speed": 1.0,                    # Speed: [0.5, 2.0], default 1.0
     "Volume": 1.0,                   # Volume: (0, 10], must be > 0, default 1.0
     "Pitch": 0,                      # Pitch: [-12, 12], default 0
-    "Language": "zh"                 # Language: zh/en/yue/ja/ko, default auto
+    "Language": "zh"                 # Language: zh/en/yue/ja/ko/ar/id/th, default auto
 }
 
 AUDIO_FORMAT = {

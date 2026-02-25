@@ -27,13 +27,13 @@ FlowTTS: A next-generation low-latency speech synthesis system with voice clonin
 - **Ultra-Low Latency**: Streaming SSE API with Keep-Alive connection
 - **Voice Cloning**: Create custom voice by submitting audio samples
 - **Human-like Expression**: Natural filler words, emotions, and paralinguistic details
-- **Multi-language Support**: Chinese/English/Japanese/Korean/Cantonese
+- **Multi-language Support**: Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai
 
 ## Models
 
 | Model | Use Case | Features |
 |-------|----------|----------|
-| `flow_01_turbo` | Conversational (Recommended) | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese |
+| `flow_01_turbo` | Conversational (Recommended) | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai |
 
 ### Voice List
 
@@ -221,6 +221,9 @@ Add TTS configuration in TRTC AI Conversation settings, `TTSConfig`:
 | Japanese | ja |
 | Korean | ko |
 | Cantonese | yue |
+| Arabic | ar |
+| Indonesian | id |
+| Thai | th |
 
 ## License
 

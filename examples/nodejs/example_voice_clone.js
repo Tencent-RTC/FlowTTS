@@ -21,7 +21,7 @@ const CLONE_AUDIO_FILE = resolve(
 const VOICE_NAME = "MyClonedVoice";
 // (Optional) Transcript of the reference audio, improves clone quality
 const PROMPT_TEXT = "";
-// (Optional) Language of the reference audio (ISO 639-1): zh/en/yue/ja/ko, default auto
+// (Optional) Language of the reference audio (ISO 639-1): zh/en/yue/ja/ko/ar/id/th, default auto
 const LANGUAGE = "";
 // ====================================
 

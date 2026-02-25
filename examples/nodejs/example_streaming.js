@@ -18,7 +18,7 @@ const VOICE_CONFIG = {
   Pitch: 0,
 };
 
-const LANGUAGE = "zh"; // Language: zh/en/yue/ja/ko, default auto
+const LANGUAGE = "zh"; // Language: zh/en/yue/ja/ko/ar/id/th, default auto
 
 const AUDIO_FORMAT = {
   Format: "pcm", // Streaming SSE only supports pcm
