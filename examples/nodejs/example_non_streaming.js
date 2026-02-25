@@ -28,7 +28,7 @@ const VOICE_CONFIG = {
   Pitch: 0,
 };
 
-const LANGUAGE = "zh"; // Language: zh/en/yue/ja/ko, default auto (non-streaming supports 5 languages)
+const LANGUAGE = "zh"; // Language: zh/en/yue/ja/ko/ar/id/th, default auto
 
 const AUDIO_FORMAT = {
   Format: "mp3", // "mp3" or "pcm"
