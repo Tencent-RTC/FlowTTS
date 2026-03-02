@@ -31,6 +31,8 @@ venv/
 ENV/
 env/
 
+*.json
+
 # IDE
 .idea/
 .vscode/

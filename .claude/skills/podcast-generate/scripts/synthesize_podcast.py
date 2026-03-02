@@ -8,7 +8,7 @@
 
 用法:
     # 在项目根目录执行（需要 .env 文件中的环境变量）
-    python .claude/skills/podcast-generate/scripts/synthesize_podcast.py -i podcast_script.json -o podcast_output.wav
+    python .claude/skills/podcast-generate/scripts/synthesize_podcast.py -i talk_about_ai.podcast.json -o talk_about_ai.wav
 
 依赖:
     pip install python-dotenv tencentcloud-sdk-python
@@ -333,7 +333,7 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
 示例:
-  python synthesize_podcast.py -i podcast_script.json -o podcast_output.wav
+  python synthesize_podcast.py -i talk_about_ai.podcast.json -o talk_about_ai.wav
   python synthesize_podcast.py --voice-a v-male-Zl2mKB1o --voice-b v-female-R2s4N9qJ
   python synthesize_podcast.py -i my_script.json --sample-rate 16000
 
