@@ -34,7 +34,7 @@ from tencentcloud.trtc.v20190722 import trtc_client, models
 # ---------------------------------------------------------------------------
 # 常量
 # ---------------------------------------------------------------------------
-MODEL = "flow_01_turbo"
+MODEL = ""  # Empty string uses the latest model by default
 CHANNELS = 1           # 单声道
 SAMPLE_WIDTH = 2       # 16-bit (2 bytes per sample)
 SILENCE_DURATION_MS = 300  # 对话轮次间的静音时长（毫秒）

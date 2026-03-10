@@ -28,7 +28,7 @@ load_dotenv()
 
 # ========== Configuration ==========
 SDK_APP_ID = int(os.getenv("TENCENTCLOUD_SDK_APP_ID") or os.getenv("SDKAPPID") or "1400000000")
-MODEL = "flow_01_turbo"
+MODEL = ""  # Empty string uses the latest model by default
 
 VOICE_CONFIG = {
     "VoiceId": "v-female-R2s4N9qJ",

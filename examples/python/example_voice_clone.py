@@ -19,7 +19,7 @@ load_dotenv()
 
 # ========== Configuration ==========
 SDK_APP_ID = int(os.getenv("TENCENTCLOUD_SDK_APP_ID") or os.getenv("SDKAPPID") or "1400000000")
-MODEL = "flow_01_turbo"
+MODEL = ""  # Empty string uses the latest model by default
 
 # Voice clone settings
 CLONE_AUDIO_FILE = os.path.join(os.path.dirname(__file__), "../../test_data/clone_sample.wav")  # 16kHz mono WAV, 10-180 seconds

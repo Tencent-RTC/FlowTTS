@@ -9,7 +9,7 @@ import { writeFileSync } from "fs";
 import { loadConfig, createClient, pcmToWav } from "./utils.js";
 
 // ========== Configuration ==========
-const MODEL = "flow_01_turbo";
+const MODEL = ""; // Empty string uses the latest model by default
 
 const VOICE_CONFIG = {
   VoiceId: "v-female-R2s4N9qJ",
