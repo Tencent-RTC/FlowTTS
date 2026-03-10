@@ -19,7 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // ========== Configuration ==========
-const MODEL = "flow_01_turbo";
+const MODEL = ""; // Empty string uses the latest model by default
 
 const VOICE_CONFIG = {
   VoiceId: "v-female-R2s4N9qJ",

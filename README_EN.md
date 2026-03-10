@@ -33,11 +33,14 @@ FlowTTS: A next-generation low-latency speech synthesis system with voice clonin
 
 | Model | Use Case | Features |
 |-------|----------|----------|
-| `flow_01_turbo` | Conversational (Recommended) | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai |
+| `flow_02_turbo` | Conversational (Latest) | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai |
+| `flow_01_turbo` | Conversational | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai |
+
+> **Recommended:** Pass an empty string `""` for the `Model` field to automatically use the latest model without specifying a version.
 
 ### Voice List
 
-- [flow_01_turbo Premium Voice List](https://doc.weixin.qq.com/smartsheet/s3_AS8AdAZRAHECNorj3TwZ8REagnFMY?scode=AJEAIQdfAAolPNM7ckAS8AdAZRAHE&tab=q979lj&viewId=vukaF8)
+- [Premium Voice List](https://doc.weixin.qq.com/smartsheet/s3_AS8AdAZRAHECNorj3TwZ8REagnFMY?scode=AJEAIQdfAAolPNM7ckAS8AdAZRAHE&tab=q979lj&viewId=vukaF8)
 
 ## Quick Start
 
@@ -204,7 +207,7 @@ Add TTS configuration in TRTC AI Conversation settings, `TTSConfig`:
 {
   "TTSType": "flow",
   "VoiceId": "your_voice_id",
-  "Model": "flow_01_turbo",
+  "Model": "",
   "Speed": 1.0,
   "Volume": 1.0,
   "Pitch": 0,

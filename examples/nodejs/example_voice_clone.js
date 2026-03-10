@@ -13,7 +13,7 @@ import { resolve } from "path";
 import { loadConfig, createClient, projectRoot } from "./utils.js";
 
 // ========== Configuration ==========
-const MODEL = "flow_01_turbo";
+const MODEL = ""; // Empty string uses the latest model by default
 const CLONE_AUDIO_FILE = resolve(
   projectRoot(),
   "test_data/clone_sample.wav"
