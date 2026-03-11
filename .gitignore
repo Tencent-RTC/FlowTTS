@@ -32,6 +32,7 @@ ENV/
 env/
 
 *.json
+!voices/*.json
 
 # IDE
 .idea/
