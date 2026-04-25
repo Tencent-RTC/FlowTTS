@@ -138,14 +138,14 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
     "Language": "zh",
     "AudioFormat": {
       "Format": "pcm",
-      "SampleRate": 16000,
-      "BitRate": 128000
+      "SampleRate": 24000,
+      "BitRate": 128
     },
     "Voice": {
-      "VoiceId": "zh-CN-XiaoxiaoNeural",
+      "VoiceId": "v-male-s5NqE0rZ",
       "Speed": 1.0,
       "Volume": 1.0,
-      "Pitch": 1.0
+      "Pitch": 0
     }
   }
 }
@@ -155,16 +155,16 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 
 | 字段 | 类型 | 必填 | 默认值 | 说明 |
 |------|------|------|--------|------|
-| Language | String | 否 | zh-CN | 需要合成的语言（ISO 639-1），支持 zh（中文）、en（英文）、yue（粤语）、ja（日语）、ko（韩语），默认自动识别） |
+| Language | String | 否 | zh | 需要合成的语言（ISO 639-1），支持 zh（中文）、en（英文）、ja（日语）、ko（韩语）、yue（粤语）、ms（马来语）、ar（阿拉伯语）、id（印尼语）、th（泰语）、vi（越南语），不传默认 zh |
 | AudioFormat.Format | String | 否 | pcm | 音频格式（pcm/mp3）|
 | AudioFormat.SampleRate | Integer | 否 | 24000 | 生成的音频采样率，默认24000，支持16000和24000  |
-| AudioFormat.BitRate | Integer | 否 | 128 | MP3 比特率 (kbps)，仅对 MP3 格式生效, 可以选： 64, 128, 192, 256 , 默认： 128 |
+| AudioFormat.BitRate | Integer | 否 | 128 | MP3 比特率（kbps），仅对 MP3 格式生效，可选值：64、128、192、256 |
 | Voice.VoiceId | String | 是 | 无 | 音色 ID，可从音色列表获取，或使用声音克隆生成的自定义音色 ID |
-| Voice.Speed | Float | 否 | 1.0 | 语速调节，0.5 为半速慢放，2.0 为两倍速快放，1.0 为正常语速，区间：[0.5, 2.0]，默认1.0 |
-| Voice.Volume | Float | 否 | 1.0 | 音量调节，0 为静音，10 为最大音量，建议保持默认值 1.0，区间：[0, 10]，默认1.0 |
-| Voice.Pitch | Float | 否 | 1.0 | 音高调节，负值声音更低沉，正值声音更尖锐，0 为原始音高，区间 [-12, 12], 默认0 |
+| Voice.Speed | Float | 否 | 1.0 | 语速调节，0.5 为半速，2.0 为两倍速，1.0 为正常语速，区间 [0.5, 2.0] |
+| Voice.Volume | Float | 否 | 1.0 | 音量调节，建议保持默认值 1.0，区间 (0, 10]（必须大于 0） |
+| Voice.Pitch | Float | 否 | 0 | 音高调节，负值更低沉，正值更尖锐，0 为原始音高，区间 [-12, 12] |
 
-### 3.2 ContinueSession - 流式发送文本
+### 4.2 ContinueSession - 流式发送文本
 
 客户端持续发送文本片段，服务端缓存并自动分句。
 
@@ -187,7 +187,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 |------|------|------|------|
 | Text | String | 是 | 文本片段，单次限制最大1000字符 |
 
-### 3.3 FinishSession - 结束会话
+### 4.3 FinishSession - 结束会话
 
 客户端发送此信令表示文本输入结束，服务端将缓冲区剩余文本合成为最后一个句子。
 
@@ -202,7 +202,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 }
 ```
 
-### 3.4 InterruptSession - 立即打断
+### 4.4 InterruptSession - 立即打断
 
 客户端发送此信令立即停止当前会话的所有处理。
 
@@ -217,9 +217,9 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 }
 ```
 
-## 4. 服务端事件（Server → Client）
+## 5. 服务端事件（Server → Client）
 
-### 4.1 SessionStart - 会话开始
+### 5.1 SessionStart - 会话开始
 
 服务端响应`StartSession`信令，表示会话创建成功。
 
@@ -249,7 +249,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 }
 ```
 
-### 4.2 SessionEnd - 会话结束
+### 5.2 SessionEnd - 会话结束
 
 会话正常结束（`FinishSession`）或被打断（`InterruptSession`）时发送。
 
@@ -276,7 +276,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 | TotalDuration | Float | 音频总时长（秒） |
 | Interrupted | Boolean | 是否被客户端打断 |
 
-### 4.3 SentenceAudio - 句子音频数据
+### 5.3 SentenceAudio - 句子音频数据
 
 每个句子合成完成后，服务端发送此事件返回音频数据。
 
@@ -307,7 +307,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 | Duration | Float | 音频时长（秒） |
 | IsEnd | Boolean | 该句的合成是否结束 |
 
-### 4.4 SessionError - 会话级别错误
+### 5.4 SessionError - 会话级别错误
 
 会话级别的错误（如参数无效、会话状态异常等）。
 
@@ -325,7 +325,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 }
 ```
 
-### 4.5 SentenceError - 句子级别错误
+### 5.5 SentenceError - 句子级别错误
 
 单个句子合成失败时发送，会话继续。
 
@@ -345,9 +345,9 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 }
 ```
 
-## 5. 错误码表
+## 6. 错误码表
 
-### 5.1 参数错误
+### 6.1 参数错误
 
 | 错误码 | 说明 |
 |--------|------|
@@ -363,27 +363,27 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 | `InvalidParameter.TextLength` | 文本过长 |
 | `InvalidParameter.Voice` | 无效音色参数 |
 
-### 5.2 鉴权错误
+### 6.2 鉴权错误
 
 | 错误码 | 说明 |
 |--------|------|
 | `AuthFailure` | 鉴权失败 |
 | `AuthFailure.TimestampExpired` | 签名过期 |
 
-### 5.3 内部错误
+### 6.3 内部错误
 
 | 错误码 | 说明 |
 |--------|------|
 | `InternalError` | 内部错误 |
 | `InternalError.TTSServiceUnavailable` | TTS服务不可用 |
 
-### 5.4 配额错误
+### 6.4 配额错误
 
 | 错误码 | 说明 |
 |--------|------|
 | `QuotaLimited` | 并发受限 |
 
-### 5.5 消息错误
+### 6.5 消息错误
 
 | 错误码 | 说明 |
 |--------|------|
@@ -394,7 +394,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 | `InvalidMessage.InterruptSession` | 无效InterruptSession消息 |
 
 
-## 6.示例
+## 7. 示例
 ```python
 import aiohttp
 import asyncio
@@ -571,7 +571,7 @@ if __name__ == "__main__":
 ```
 
 
-## 常见问题
+## 8. 常见问题
 
 ### Q：为什么鉴权失败？
 

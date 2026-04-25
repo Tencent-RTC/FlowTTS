@@ -1,6 +1,11 @@
 # 字符计算规则
 
-本文档说明 FlowTTS 中文本字符数的计算规则。
+本文档说明 FlowTTS 中文本字符数的计算规则，主要用于：
+
+- **计费计量**：账单按字符数统计
+- **文本长度限制**：服务端校验 `ContinueSession.Text`（单次 ≤ 1000 字符）以及 WebSocket 单连接累计文本（≤ 10000 字符），相关限制见 [WebSocket 协议文档](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/ws_bidirection_protocol.md)
+
+> 与 Unicode 码点数、字节数不同：汉字（CJK 统一表意文字）按 **2 个字符** 计算，其他字符按 **1 个字符** 计算。
 
 ## 计算规则
 

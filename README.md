@@ -4,43 +4,54 @@
 
 **新一代低延迟对话式语音合成系统**
 
+[![GitHub](https://img.shields.io/badge/GitHub-Tencent--RTC%2FFlowTTS-181717?logo=github)](https://github.com/Tencent-RTC/FlowTTS)
 [![TRTC](https://img.shields.io/badge/TRTC-AI-blue.svg)](https://cloud.tencent.com/product/trtc)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Tencent-RTC/FlowTTS/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent-RTC/FlowTTS/pulls)
 
-[English](README_EN.md) | 简体中文
+[English](https://github.com/Tencent-RTC/FlowTTS/blob/main/README_EN.md) | 简体中文
+
+仓库地址：<https://github.com/Tencent-RTC/FlowTTS>
 
 </div>
 
 ---
 
-FlowTTS: 一个低延迟、可声音克隆、具备拟人化表达能力的新一代语音生成系统。它能够自然呈现语气词、情绪与副语言细节，让对话场景中的 AI "听起来像真人"。
+FlowTTS: 一个低延迟、可声音克隆、具备拟人化表达能力的新一代语音生成系统。它能够自然呈现语气词、情绪与副语言细节，让对话场景中的 AI"听起来像真人"。
 
-## 在线体验
+> 🎧 **在线体验**：[对话式 TTS 全部音色体验页](https://web.realtime-ai.chat/app/tts.html)　·　📚 **协议细节**：[WebSocket 双向流式协议](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/ws_bidirection_protocol.md)
 
-- [对话式 TTS 全部音色体验页](https://web.realtime-ai.chat/app/tts.html)
+## 目录
+
+- [特性](#特性)
+- [模型说明](#模型说明)
+- [快速开始](#快速开始)
+- [示例索引](#示例索引)
+- [如何选择接口](#如何选择接口)
+- [API 参考](#api-参考)
+- [Keep-Alive 长连接](#keep-alive-长连接)
+- [API 文档](#api-文档)
+- [TRTC AI 对话集成](#trtc-ai-对话集成)
 
 ## 特性
 
-- **超低延迟**: 流式 SSE API，支持 Keep-Alive 长连接
-- **声音克隆**: 提交少量语音样本，创建专属克隆音色
-- **拟人化表达**: 自然呈现语气词、情绪与副语言细节
-- **多语言支持**: 中/英/日/韩/粤/阿拉伯/印尼/泰语
+- **超低延迟**：流式 SSE API，支持 Keep-Alive 长连接
+- **声音克隆**：提交少量语音样本，创建专属克隆音色
+- **拟人化表达**：自然呈现语气词、情绪与副语言细节
+- **多语言支持**：覆盖中、英、日、韩、粤、马来、阿拉伯、印尼、泰、越南共 10 种语言（详见 [语言代码](#语言代码iso-639-1)）
 
 ## 模型说明
 
 | 模型 | 定位 | 特点 |
 |------|------|------|
-| `flow_02_turbo` | 对话场景（最新） | 超低延迟，音质高，拟人度强，支持中/英/日/韩/粤/阿拉伯/印尼/泰语 |
-| `flow_01_turbo` | 对话场景 | 超低延迟，音质高，拟人度强，支持中/英/日/韩/粤/阿拉伯/印尼/泰语 |
+| `flow_02_turbo` | 对话场景（最新） | 超低延迟、音质高、拟人度强 |
+| `flow_01_turbo` | 对话场景 | 超低延迟、音质高、拟人度强 |
 
-> **推荐：** `Model` 字段传空字符串 `""` 即可自动使用最新模型，无需手动指定版本。
+两个模型均支持上述 10 种语言。
 
-### 音色列表
-
-- [精品音色列表](https://doc.weixin.qq.com/smartsheet/s3_AS8AdAZRAHECNorj3TwZ8REagnFMY?scode=AJEAIQdfAAolPNM7ckAS8AdAZRAHE&tab=q979lj&viewId=vukaF8)
+> 💡 **推荐**：`Model` 字段传空字符串 `""` 即可自动使用最新模型，无需手动指定版本。
 
 ## 快速开始
 
@@ -85,69 +96,69 @@ cp .env.example .env
 TENCENTCLOUD_SECRET_ID=your_secret_id_here
 TENCENTCLOUD_SECRET_KEY=your_secret_key_here
 TENCENTCLOUD_SDK_APP_ID=1400000000
+
+# 可选：自定义 API Endpoint（默认 trtc.ai.tencentcloudapi.com）
+TENCENTCLOUD_ENDPOINT=trtc.ai.tencentcloudapi.com
 ```
 
 获取密钥：[腾讯云控制台](https://console.cloud.tencent.com/cam/capi)
 
 ### 4. 运行示例
 
-#### Python
+从仓库根目录执行（任选一种语言）：
 
 ```bash
-# 流式 TTS
+# Python
 python examples/python/example_streaming.py
 
-# 非流式 TTS
-python examples/python/example_non_streaming.py
-
-# 声音克隆
-python examples/python/example_voice_clone.py
-
-# WebSocket 双向流式
-python examples/python/example_ws_bidirection.py
+# Node.js
+node examples/nodejs/example_streaming.js
 ```
 
-#### Node.js
+> 第一次跑建议从 `example_streaming` 开始，能在数百毫秒内听到首个音频包。
+
+#### 声音克隆流程
 
 ```bash
-cd examples/nodejs
-
-# 流式 TTS
-node example_streaming.js
-
-# 非流式 TTS
-node example_non_streaming.js
-
-# 声音克隆
-node example_voice_clone.js
-
-# WebSocket 双向流式
-node example_ws_bidirection.js
-```
-
-#### 声音克隆示例
-
-```bash
-# 1. 准备音频样本（16kHz 单声道 WAV，10-180秒）
+# 1. 准备音频样本（16kHz 单声道 WAV，10-180 秒）
 cp your_voice.wav test_data/clone_sample.wav
 
 # 2. 克隆声音，获取 voice_id
 python examples/python/example_voice_clone.py
 
-# 3. 在 example_streaming.py 中使用返回的 voice_id 进行 TTS 合成
-# 修改 VOICE_CONFIG["VoiceId"] 为克隆返回的 voice_id
+# 3. 在 example_streaming.py 中将 VOICE_CONFIG["VoiceId"] 改为返回的 voice_id 后运行
 python examples/python/example_streaming.py
 ```
 
-## 参数配置
+## 示例索引
+
+仓库提供 4 套示例，Python 与 Node.js 一一对应。从根目录执行（Node.js 需先 `cd examples/nodejs`）：
+
+| 场景 | Python | Node.js | 说明 |
+|------|--------|---------|------|
+| 流式合成（推荐入门） | `example_streaming.py` | `example_streaming.js` | SSE 流式返回，边合成边播放，首包延迟最低 |
+| 非流式合成 | `example_non_streaming.py` | `example_non_streaming.js` | 一次性返回完整音频，适合离线/异步生成 |
+| 声音克隆 | `example_voice_clone.py` | `example_voice_clone.js` | 上传音频样本，得到自定义 `VoiceId` |
+| WebSocket 双向流式 | `example_ws_bidirection.py` | `example_ws_bidirection.js` | 边发文本边收音频，适合 LLM 流式输出对接 |
+
+## 如何选择接口
+
+| 场景 | 推荐接口 | 原因 |
+|------|----------|------|
+| 实时对话、Agent 语音输出 | **WebSocket 双向流式** | LLM token 流式产出后即时推给 TTS，首句最快出声，可中途打断 |
+| 已知完整文本，要求最低首包延迟 | **流式 SSE** | 一次请求边收边播，比非流式延迟低 50-100ms |
+| 离线播报、批量生成、文件导出 | **非流式** | 拿到完整音频文件（pcm/wav/mp3），方便后处理 |
+| 需要专属音色 | **声音克隆** | 提交样本得到 `VoiceId`，再配合上述任意接口使用 |
+
+## API 参考
 
 ### 语音参数
 
-| 参数 | 范围 | 说明 |
-|------|------|------|
-| Speed | 0.5 ~ 2.0 | 语速 |
-| Volume | 0.01 ~ 10 | 音量（必须大于0） |
-| Pitch | -12 ~ 12 | 音高 |
+| 参数 | 范围 | 默认值 | 说明 |
+|------|------|--------|------|
+| Speed | 0.5 ~ 2.0 | 1.0 | 语速，0.5 为半速、2.0 为两倍速 |
+| Volume | (0, 10] | 1.0 | 音量，必须大于 0 |
+| Pitch | -12 ~ 12 | 0 | 音高，负值更低沉、正值更尖锐 |
 
 ### 音频格式
 
@@ -193,9 +204,21 @@ Node.js HTTP agent 默认支持连接复用，无需额外配置。
 
 ## API 文档
 
+**官方 API**
+
 - [SSE 流式文本转语音 API](https://cloud.tencent.com/document/product/647/122474)
 - [非流式文本转语音 API](https://cloud.tencent.com/document/api/647/122475)
 - [声音克隆 API](https://cloud.tencent.com/document/product/647/122473)
+
+**仓库内文档**
+
+- [WebSocket 双向流式协议](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/ws_bidirection_protocol.md) — 鉴权、消息格式、事件、错误码、完整示例
+- [字符计算规则](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/char_count_rules.md) — 计费与文本长度限制使用的字符计数规则
+
+**音色与体验**
+
+- [精品音色列表](https://doc.weixin.qq.com/smartsheet/s3_AS8AdAZRAHECNorj3TwZ8REagnFMY?scode=AJEAIQdfAAolPNM7ckAS8AdAZRAHE&tab=q979lj&viewId=vukaF8)
+- [对话式 TTS 全部音色体验页](https://web.realtime-ai.chat/app/tts.html)
 
 ## TRTC AI 对话集成
 
@@ -215,6 +238,21 @@ Node.js HTTP agent 默认支持连接复用，无需额外配置。
 }
 ```
 
+### 语言代码（ISO 639-1）
+
+| 语言 | 代码 |
+|------|------|
+| 中文 | zh |
+| 英文 | en |
+| 日语 | ja |
+| 韩语 | ko |
+| 粤语 | yue |
+| 马来语 | ms |
+| 阿拉伯语 | ar |
+| 印尼语 | id |
+| 泰语 | th |
+| 越南语 | vi |
+
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - see [LICENSE](https://github.com/Tencent-RTC/FlowTTS/blob/main/LICENSE) for details.

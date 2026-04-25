@@ -4,13 +4,16 @@
 
 **Next-Generation Low-Latency Conversational Speech Synthesis**
 
+[![GitHub](https://img.shields.io/badge/GitHub-Tencent--RTC%2FFlowTTS-181717?logo=github)](https://github.com/Tencent-RTC/FlowTTS)
 [![TRTC](https://img.shields.io/badge/TRTC-AI-blue.svg)](https://cloud.tencent.com/product/trtc)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Tencent-RTC/FlowTTS/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent-RTC/FlowTTS/pulls)
 
-English | [简体中文](README.md)
+English | [简体中文](https://github.com/Tencent-RTC/FlowTTS/blob/main/README.md)
+
+Repository: <https://github.com/Tencent-RTC/FlowTTS>
 
 </div>
 
@@ -27,14 +30,14 @@ FlowTTS: A next-generation low-latency speech synthesis system with voice clonin
 - **Ultra-Low Latency**: Streaming SSE API with Keep-Alive connection
 - **Voice Cloning**: Create custom voice by submitting audio samples
 - **Human-like Expression**: Natural filler words, emotions, and paralinguistic details
-- **Multi-language Support**: Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai
+- **Multi-language Support**: Chinese/English/Japanese/Korean/Cantonese/Malay/Arabic/Indonesian/Thai/Vietnamese
 
 ## Models
 
 | Model | Use Case | Features |
 |-------|----------|----------|
-| `flow_02_turbo` | Conversational (Latest) | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai |
-| `flow_01_turbo` | Conversational | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Arabic/Indonesian/Thai |
+| `flow_02_turbo` | Conversational (Latest) | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Malay/Arabic/Indonesian/Thai/Vietnamese |
+| `flow_01_turbo` | Conversational | Ultra-low latency, high quality, supports Chinese/English/Japanese/Korean/Cantonese/Malay/Arabic/Indonesian/Thai/Vietnamese |
 
 > **Recommended:** Pass an empty string `""` for the `Model` field to automatically use the latest model without specifying a version.
 
@@ -85,6 +88,9 @@ Edit `.env` with your Tencent Cloud credentials:
 TENCENTCLOUD_SECRET_ID=your_secret_id_here
 TENCENTCLOUD_SECRET_KEY=your_secret_key_here
 TENCENTCLOUD_SDK_APP_ID=1400000000
+
+# Optional: custom API endpoint (defaults to trtc.ai.tencentcloudapi.com)
+TENCENTCLOUD_ENDPOINT=trtc.ai.tencentcloudapi.com
 ```
 
 Get credentials from [Tencent Cloud Console](https://console.cloud.tencent.com/cam/capi)
@@ -197,6 +203,11 @@ Node.js HTTP agent supports connection reuse by default, no additional configura
 - [Non-streaming Text-to-Speech API](https://cloud.tencent.com/document/api/647/122475)
 - [Voice Cloning API](https://cloud.tencent.com/document/product/647/122473)
 
+### In-repo Docs
+
+- [WebSocket Bidirectional Streaming Protocol](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/ws_bidirection_protocol.md) — auth, message format, events, error codes, full example
+- [Character Counting Rules](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/char_count_rules.md) — character counting rules used for billing and text-length limits
+
 ## TRTC AI Conversation Integration
 
 Add TTS configuration in TRTC AI Conversation settings, `TTSConfig`:
@@ -224,10 +235,12 @@ Add TTS configuration in TRTC AI Conversation settings, `TTSConfig`:
 | Japanese | ja |
 | Korean | ko |
 | Cantonese | yue |
+| Malay | ms |
 | Arabic | ar |
 | Indonesian | id |
 | Thai | th |
+| Vietnamese | vi |
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - see [LICENSE](https://github.com/Tencent-RTC/FlowTTS/blob/main/LICENSE) for details.
