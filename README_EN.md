@@ -109,6 +109,9 @@ python examples/python/example_non_streaming.py
 # Voice cloning
 python examples/python/example_voice_clone.py
 
+# flow_01_ex voice clone + inference
+python examples/python/example_flow_01_ex_clone_inference.py
+
 # WebSocket bidirectional streaming
 python examples/python/example_ws_bidirection.py
 ```
@@ -127,6 +130,9 @@ node example_non_streaming.js
 # Voice cloning
 node example_voice_clone.js
 
+# flow_01_ex voice clone + inference
+node example_flow_01_ex_clone_inference.js
+
 # WebSocket bidirectional streaming
 node example_ws_bidirection.js
 ```
@@ -144,6 +150,20 @@ python examples/python/example_voice_clone.py
 # Update VOICE_CONFIG["VoiceId"] with the cloned voice_id
 python examples/python/example_streaming.py
 ```
+
+#### flow_01_ex Voice Clone + Inference
+
+To explicitly use the `flow_01_ex` model for one clone-and-infer run:
+
+```bash
+# Python
+python examples/python/example_flow_01_ex_clone_inference.py
+
+# Node.js
+node examples/nodejs/example_flow_01_ex_clone_inference.js
+```
+
+The script reads `test_data/clone_sample.wav`, calls `VoiceClone` with `Model=flow_01_ex`, then calls non-streaming `TextToSpeech` with the returned `VoiceId` and saves an MP3 file.
 
 ## Configuration
 

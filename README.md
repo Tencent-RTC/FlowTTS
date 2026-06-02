@@ -130,15 +130,30 @@ python examples/python/example_voice_clone.py
 python examples/python/example_streaming.py
 ```
 
+#### `flow_01_ex` 克隆 + 推理
+
+如果需要固定使用 `flow_01_ex` 模型完成一次克隆并立刻推理，可运行单独示例：
+
+```bash
+# Python
+python examples/python/example_flow_01_ex_clone_inference.py
+
+# Node.js
+node examples/nodejs/example_flow_01_ex_clone_inference.js
+```
+
+脚本会读取 `test_data/clone_sample.wav`，使用 `Model=flow_01_ex` 调用 `VoiceClone`，再用返回的 `VoiceId` 调用非流式 `TextToSpeech` 并保存 MP3。
+
 ## 示例索引
 
-仓库提供 4 套示例，Python 与 Node.js 一一对应。从根目录执行（Node.js 需先 `cd examples/nodejs`）：
+仓库提供 5 套示例，Python 与 Node.js 一一对应。从根目录执行（Node.js 需先 `cd examples/nodejs`）：
 
 | 场景 | Python | Node.js | 说明 |
 |------|--------|---------|------|
 | 流式合成（推荐入门） | `example_streaming.py` | `example_streaming.js` | SSE 流式返回，边合成边播放，首包延迟最低 |
 | 非流式合成 | `example_non_streaming.py` | `example_non_streaming.js` | 一次性返回完整音频，适合离线/异步生成 |
 | 声音克隆 | `example_voice_clone.py` | `example_voice_clone.js` | 上传音频样本，得到自定义 `VoiceId` |
+| `flow_01_ex` 克隆 + 推理 | `example_flow_01_ex_clone_inference.py` | `example_flow_01_ex_clone_inference.js` | 指定 `Model=flow_01_ex`，先克隆音色，再用克隆 `VoiceId` 非流式推理生成 MP3 |
 | WebSocket 双向流式 | `example_ws_bidirection.py` | `example_ws_bidirection.js` | 边发文本边收音频，适合 LLM 流式输出对接 |
 
 ## 如何选择接口

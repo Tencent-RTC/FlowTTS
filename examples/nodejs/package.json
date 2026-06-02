@@ -9,6 +9,7 @@
     "streaming": "node example_streaming.js",
     "non-streaming": "node example_non_streaming.js",
     "voice-clone": "node example_voice_clone.js",
+    "flow-01-ex": "node example_flow_01_ex_clone_inference.js",
     "ws-bidirection": "node example_ws_bidirection.js"
   },
   "dependencies": {
