@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * FlowTTS flow_01_ex Example - Voice Clone + Inference
+ * FlowTTS flow_01_ex Example - Default Voice Inference / Voice Clone
  *
- * This example demonstrates the complete flow for the flow_01_ex model:
- * 1. Clone a voice from a reference audio sample.
- * 2. Use the returned VoiceId for non-streaming TTS inference.
+ * This example demonstrates the flow_01_ex model with the default voice
+ * "female-shaonv". To test clone + inference, set
+ * USE_CLONED_VOICE_FOR_INFERENCE to true.
  *
  * Voice Clone and non-streaming TTS both use endpoint "trtc.tencentcloudapi.com".
  */
@@ -19,6 +19,8 @@ const __dirname = dirname(__filename);
 
 // ========== Configuration ==========
 const MODEL = "flow_01_ex";
+const DEFAULT_VOICE_ID = "female-shaonv";
+const USE_CLONED_VOICE_FOR_INFERENCE = false;
 
 // Voice clone settings
 const CLONE_AUDIO_FILE = resolve(projectRoot(), "test_data/clone_sample.wav"); // 16kHz mono WAV, 10-180 seconds
@@ -30,7 +32,7 @@ const CLONE_LANGUAGE = "";
 
 // TTS inference settings
 const INFERENCE_TEXT =
-  "欢迎使用腾讯云 FlowTTS flow_01_ex 模型，这是克隆音色完成后的推理示例。";
+  "欢迎使用腾讯云 FlowTTS flow_01_ex 模型，这是默认少女音色 female-shaonv 的推理示例。";
 const INFERENCE_LANGUAGE = "zh";
 
 const VOICE_PARAMS = {
@@ -156,9 +158,18 @@ async function main() {
   const cfg = loadConfig();
   const client = createClient(cfg, "trtc.tencentcloudapi.com");
 
-  const voiceId = await cloneVoice(client, cfg.sdkAppId);
-  if (!voiceId) {
-    return;
+  let voiceId = DEFAULT_VOICE_ID;
+  if (USE_CLONED_VOICE_FOR_INFERENCE) {
+    voiceId = await cloneVoice(client, cfg.sdkAppId);
+    if (!voiceId) {
+      return;
+    }
+  } else {
+    console.log("=".repeat(60));
+    console.log("Step 1: Use Default Voice");
+    console.log("=".repeat(60));
+    console.log(`Model: ${MODEL}`);
+    console.log(`Default VoiceId: ${voiceId}`);
   }
 
   await textToSpeech(client, cfg.sdkAppId, voiceId);

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-FlowTTS flow_01_ex Example - Voice Clone + Inference
+FlowTTS flow_01_ex Example - Default Voice Inference / Voice Clone
 
-This example demonstrates the complete flow for the flow_01_ex model:
-1. Clone a voice from a reference audio sample.
-2. Use the returned VoiceId for non-streaming TTS inference.
+This example demonstrates the flow_01_ex model with the default voice
+"female-shaonv". To test clone + inference, set
+USE_CLONED_VOICE_FOR_INFERENCE to True.
 
 Voice Clone and non-streaming TTS both use endpoint "trtc.tencentcloudapi.com".
 """
@@ -27,6 +27,8 @@ load_dotenv()
 # ========== Configuration ==========
 SDK_APP_ID = int(os.getenv("TENCENTCLOUD_SDK_APP_ID") or os.getenv("SDKAPPID") or "1400000000")
 MODEL = "flow_01_ex"
+DEFAULT_VOICE_ID = "female-shaonv"
+USE_CLONED_VOICE_FOR_INFERENCE = False
 
 # Voice clone settings
 CLONE_AUDIO_FILE = os.path.join(os.path.dirname(__file__), "../../test_data/clone_sample.wav")  # 16kHz mono WAV, 10-180 seconds
@@ -37,7 +39,7 @@ PROMPT_TEXT = ""
 CLONE_LANGUAGE = ""
 
 # TTS inference settings
-INFERENCE_TEXT = "欢迎使用腾讯云 FlowTTS flow_01_ex 模型，这是克隆音色完成后的推理示例。"
+INFERENCE_TEXT = "欢迎使用腾讯云 FlowTTS flow_01_ex 模型，这是默认少女音色 female-shaonv 的推理示例。"
 INFERENCE_LANGUAGE = "zh"
 
 VOICE_PARAMS = {
@@ -143,7 +145,7 @@ def save_audio_file(audio_data, voice_id):
 
 def text_to_speech(client, voice_id):
     """
-    Run non-streaming TTS inference with the cloned voice.
+    Run non-streaming TTS inference with the selected voice.
 
     Returns:
         Path to the saved audio file, or None on failure.
@@ -204,9 +206,17 @@ def main():
     if not client:
         return
 
-    voice_id = clone_voice(client)
-    if not voice_id:
-        return
+    if USE_CLONED_VOICE_FOR_INFERENCE:
+        voice_id = clone_voice(client)
+        if not voice_id:
+            return
+    else:
+        voice_id = DEFAULT_VOICE_ID
+        print("=" * 60)
+        print("Step 1: Use Default Voice")
+        print("=" * 60)
+        print(f"Model: {MODEL}")
+        print(f"Default VoiceId: {voice_id}")
 
     text_to_speech(client, voice_id)
 

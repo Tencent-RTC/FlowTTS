@@ -8,6 +8,7 @@
 [![TRTC](https://img.shields.io/badge/TRTC-AI-blue.svg)](https://cloud.tencent.com/product/trtc)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Go](https://img.shields.io/badge/Go-1.20+-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Tencent-RTC/FlowTTS/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent-RTC/FlowTTS/pulls)
 
@@ -84,6 +85,15 @@ npm install
 
 > 需要 Node.js >= 18。
 
+**Go**
+
+```bash
+cd examples/golang
+go mod download
+```
+
+> 需要 Go >= 1.20。
+
 ### 3. 配置环境变量
 
 ```bash
@@ -113,6 +123,10 @@ python examples/python/example_streaming.py
 
 # Node.js
 node examples/nodejs/example_streaming.js
+
+# Go
+cd examples/golang
+go run ./streaming
 ```
 
 > 第一次跑建议从 `example_streaming` 开始，能在数百毫秒内听到首个音频包。
@@ -126,13 +140,17 @@ cp your_voice.wav test_data/clone_sample.wav
 # 2. 克隆声音，获取 voice_id
 python examples/python/example_voice_clone.py
 
+# Go 版本
+cd examples/golang
+go run ./voice_clone
+
 # 3. 在 example_streaming.py 中将 VOICE_CONFIG["VoiceId"] 改为返回的 voice_id 后运行
 python examples/python/example_streaming.py
 ```
 
-#### `flow_01_ex` 克隆 + 推理
+#### `flow_01_ex` 默认音色推理 / 克隆推理
 
-如果需要固定使用 `flow_01_ex` 模型完成一次克隆并立刻推理，可运行单独示例：
+如果需要固定使用 `flow_01_ex` 模型，可运行单独示例。示例默认使用 `VoiceId=female-shaonv` 推理；如需测试 clone + 推理，可将脚本中的 `USE_CLONED_VOICE_FOR_INFERENCE` 改为 `True` / `true`。
 
 ```bash
 # Python
@@ -142,19 +160,19 @@ python examples/python/example_flow_01_ex_clone_inference.py
 node examples/nodejs/example_flow_01_ex_clone_inference.js
 ```
 
-脚本会读取 `test_data/clone_sample.wav`，使用 `Model=flow_01_ex` 调用 `VoiceClone`，再用返回的 `VoiceId` 调用非流式 `TextToSpeech` 并保存 MP3。
+脚本会使用 `Model=flow_01_ex` 调用非流式 `TextToSpeech` 并保存 MP3。开启 clone 模式后，会先读取 `test_data/clone_sample.wav` 调用 `VoiceClone`，再用返回的 `VoiceId` 推理。
 
 ## 示例索引
 
-仓库提供 5 套示例，Python 与 Node.js 一一对应。从根目录执行（Node.js 需先 `cd examples/nodejs`）：
+仓库提供多语言示例，Python 与 Node.js 一一对应，Go 提供声音克隆、流式合成、非流式合成三套核心示例。从根目录执行（Node.js 需先 `cd examples/nodejs`；Go 需先 `cd examples/golang`）：
 
-| 场景 | Python | Node.js | 说明 |
-|------|--------|---------|------|
-| 流式合成（推荐入门） | `example_streaming.py` | `example_streaming.js` | SSE 流式返回，边合成边播放，首包延迟最低 |
-| 非流式合成 | `example_non_streaming.py` | `example_non_streaming.js` | 一次性返回完整音频，适合离线/异步生成 |
-| 声音克隆 | `example_voice_clone.py` | `example_voice_clone.js` | 上传音频样本，得到自定义 `VoiceId` |
-| `flow_01_ex` 克隆 + 推理 | `example_flow_01_ex_clone_inference.py` | `example_flow_01_ex_clone_inference.js` | 指定 `Model=flow_01_ex`，先克隆音色，再用克隆 `VoiceId` 非流式推理生成 MP3 |
-| WebSocket 双向流式 | `example_ws_bidirection.py` | `example_ws_bidirection.js` | 边发文本边收音频，适合 LLM 流式输出对接 |
+| 场景 | Python | Node.js | Go | 说明 |
+|------|--------|---------|----|------|
+| 流式合成（推荐入门） | `example_streaming.py` | `example_streaming.js` | `go run ./streaming` | SSE 流式返回，边合成边播放，首包延迟最低 |
+| 非流式合成 | `example_non_streaming.py` | `example_non_streaming.js` | `go run ./non_streaming` | 一次性返回完整音频，适合离线/异步生成 |
+| 声音克隆 | `example_voice_clone.py` | `example_voice_clone.js` | `go run ./voice_clone` | 上传音频样本，得到自定义 `VoiceId` |
+| `flow_01_ex` 默认音色推理 / 克隆推理 | `example_flow_01_ex_clone_inference.py` | `example_flow_01_ex_clone_inference.js` | - | 指定 `Model=flow_01_ex`，默认 `VoiceId=female-shaonv`；可开启 clone 模式后用克隆 `VoiceId` 推理生成 MP3 |
+| WebSocket 双向流式 | `example_ws_bidirection.py` | `example_ws_bidirection.js` | - | 边发文本边收音频，适合 LLM 流式输出对接 |
 
 ## 如何选择接口
 

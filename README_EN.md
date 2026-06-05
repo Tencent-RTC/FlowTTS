@@ -8,6 +8,7 @@
 [![TRTC](https://img.shields.io/badge/TRTC-AI-blue.svg)](https://cloud.tencent.com/product/trtc)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Go](https://img.shields.io/badge/Go-1.20+-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Tencent-RTC/FlowTTS/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent-RTC/FlowTTS/pulls)
 
@@ -76,6 +77,15 @@ npm install
 
 > Requires Node.js >= 18.
 
+**Go**
+
+```bash
+cd examples/golang
+go mod download
+```
+
+> Requires Go >= 1.20.
+
 ### 3. Configure Environment Variables
 
 ```bash
@@ -109,7 +119,7 @@ python examples/python/example_non_streaming.py
 # Voice cloning
 python examples/python/example_voice_clone.py
 
-# flow_01_ex voice clone + inference
+# flow_01_ex default voice inference / voice clone
 python examples/python/example_flow_01_ex_clone_inference.py
 
 # WebSocket bidirectional streaming
@@ -130,11 +140,26 @@ node example_non_streaming.js
 # Voice cloning
 node example_voice_clone.js
 
-# flow_01_ex voice clone + inference
+# flow_01_ex default voice inference / voice clone
 node example_flow_01_ex_clone_inference.js
 
 # WebSocket bidirectional streaming
 node example_ws_bidirection.js
+```
+
+#### Go
+
+```bash
+cd examples/golang
+
+# Streaming TTS
+go run ./streaming
+
+# Non-streaming TTS
+go run ./non_streaming
+
+# Voice cloning
+go run ./voice_clone
 ```
 
 #### Voice Clone Example
@@ -151,9 +176,9 @@ python examples/python/example_voice_clone.py
 python examples/python/example_streaming.py
 ```
 
-#### flow_01_ex Voice Clone + Inference
+#### flow_01_ex Default Voice Inference / Voice Clone
 
-To explicitly use the `flow_01_ex` model for one clone-and-infer run:
+To explicitly use the `flow_01_ex` model, run the standalone example. It uses `VoiceId=female-shaonv` by default. To test clone + inference, set `USE_CLONED_VOICE_FOR_INFERENCE` to `True` / `true` in the script.
 
 ```bash
 # Python
@@ -163,7 +188,7 @@ python examples/python/example_flow_01_ex_clone_inference.py
 node examples/nodejs/example_flow_01_ex_clone_inference.js
 ```
 
-The script reads `test_data/clone_sample.wav`, calls `VoiceClone` with `Model=flow_01_ex`, then calls non-streaming `TextToSpeech` with the returned `VoiceId` and saves an MP3 file.
+The script calls non-streaming `TextToSpeech` with `Model=flow_01_ex` and saves an MP3 file. When clone mode is enabled, it first reads `test_data/clone_sample.wav`, calls `VoiceClone`, then runs inference with the returned `VoiceId`.
 
 ## Configuration
 
