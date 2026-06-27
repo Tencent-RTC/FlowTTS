@@ -15,7 +15,6 @@ load_dotenv()
 SECRET_ID = os.getenv("TENCENTCLOUD_SECRET_ID", "your_secret_id")
 SECRET_KEY = os.getenv("TENCENTCLOUD_SECRET_KEY", "your_secret_key")
 SDK_APP_ID = int(os.getenv("TENCENTCLOUD_SDK_APP_ID") or os.getenv("SDKAPPID") or "0")
-APP_ID = SDK_APP_ID
 
 HOST = "flowtts.cloud.tencent.com"
 
@@ -37,7 +36,6 @@ def generate_url():
     
     params = {
         "Action": "TextToSpeechBidirection",
-        "AppId": APP_ID,
         "SecretId": SECRET_ID,
         "SdkAppId": SDK_APP_ID,
         "Timestamp": timestamp,

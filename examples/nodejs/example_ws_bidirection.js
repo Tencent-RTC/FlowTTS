@@ -32,7 +32,6 @@ function generateUrl(cfg) {
 
   const params = {
     Action: "TextToSpeechBidirection",
-    AppId: cfg.sdkAppId,
     SecretId: cfg.secretId,
     SdkAppId: cfg.sdkAppId,
     Timestamp: timestamp,

@@ -21,7 +21,7 @@ WebSocket 连接建立前需要通过 HTTP GET 请求进行鉴权，参数包括
 注意：url中的query都需要进行urlencode
 
 ```
-wss://flowtts.cloud.tencent.com/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId={appId}&SecretId={secretId}&SdkAppId={sdkAppId}&Timestamp={timestamp}&Expired={expired}&ConnectionId={connectionId}&Signature={signature}
+wss://flowtts.cloud.tencent.com/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&SecretId={secretId}&SdkAppId={sdkAppId}&Timestamp={timestamp}&Expired={expired}&ConnectionId={connectionId}&Signature={signature}
 ```
 
 ### 2.1 鉴权参数详解
@@ -29,7 +29,6 @@ wss://flowtts.cloud.tencent.com/api/v1/flow_tts/bidirection?Action=TextToSpeechB
 | 参数名 | 类型 | 必填 | 验证规则 | 说明 |
 |--------|------|------|----------|------|
 | Action | String | 是 | 固定值：`TextToSpeechBidirection` | 接口名称，必须为此固定值 |
-| AppId | Integer | 是 | 非0整数 | 腾讯云AppId |
 | SecretId | String | 是 | 非空字符串 | 云API密钥ID |
 | SdkAppId | Integer | 是 | 非0整数 | TRTC应用ID |
 | Timestamp | Integer | 是 | 非0整数 | 当前Unix时间戳（秒） |
@@ -49,7 +48,7 @@ SignString = HTTPMethod + URL路径 + "?" + 排序后的查询参数
 
 示例：
 ```
-GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&ConnectionId=abc123&Expired=1735834800&SecretId=AKIxjLx186ElarIZfdcMBpJbifS7awxbDrxB&SdkAppId=1400000001&Timestamp=1735748400
+GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&ConnectionId=abc123&Expired=1735834800&SecretId=AKIxjLx186ElarIZfdcMBpJbifS7awxbDrxB&SdkAppId=1400000001&Timestamp=1735748400
 ```
 
 2. 对签名原文使用 SecretKey 进行 HMAC-SHA1 加密，之后再进行 base64 编码，得到Signature，注意Signature放入url时需要进行url encode
@@ -356,7 +355,6 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&AppId=1258344704&
 | `InvalidParameter.SecretId` | 无效SecretId |
 | `InvalidParameter.ConnectionId` | 无效ConnectionId |
 | `InvalidParameter.Signature` | 无效签名 |
-| `InvalidParameter.AppId` | 无效AppId |
 | `InvalidParameter.SdkAppId` | 无效SdkAppId |
 | `InvalidParameter.Timestamp` | 无效时间戳 |
 | `InvalidParameter.Expired` | 无效过期时间 |
@@ -409,7 +407,6 @@ import base64
 # 请填写你的配置信息
 SECRET_ID = "your_secret_id"
 SECRET_KEY = "your_secret_key"
-APP_ID = 0
 SDK_APP_ID = 0
 
 HOST = "flowtts.cloud.tencent.com"
@@ -432,7 +429,6 @@ def generate_url():
     
     params = {
         "Action": "TextToSpeechBidirection",
-        "AppId": APP_ID,
         "SecretId": SECRET_ID,
         "SdkAppId": SDK_APP_ID,
         "Timestamp": timestamp,
