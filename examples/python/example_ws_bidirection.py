@@ -44,7 +44,7 @@ def generate_url():
     }
     
     params["Signature"] = generate_signature(params)
-    query_string = "&".join([f"{k}={parse.quote(str(v))}" for k, v in sorted(params.items())])
+    query_string = parse.urlencode(sorted(params.items()))
     url = f"wss://{HOST}/api/v1/flow_tts/bidirection?{query_string}"
     
     return url, connection_id
