@@ -41,10 +41,12 @@ function generateUrl(cfg) {
 
   params.Signature = generateSignature(params, cfg.secretKey);
 
-  const queryString = Object.entries(params)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
-    .join("&");
+  const sortedEntries = Object.entries(params).sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+  const queryString = new URLSearchParams(
+    sortedEntries.map(([k, v]) => [k, String(v)])
+  ).toString();
 
   const url = `wss://${HOST}/api/v1/flow_tts/bidirection?${queryString}`;
   return { url, connectionId };
