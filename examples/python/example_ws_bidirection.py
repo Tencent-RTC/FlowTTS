@@ -18,6 +18,10 @@ SDK_APP_ID = int(os.getenv("TENCENTCLOUD_SDK_APP_ID") or os.getenv("SDKAPPID") o
 
 HOST = "flowtts.cloud.tencent.com"
 
+# TTS 模型：留空使用服务端默认（flow_02_turbo），也可显式指定
+MODEL = os.getenv("FLOW_TTS_MODEL", "flow_02_turbo")
+VOICE_ID = os.getenv("FLOW_TTS_VOICE_ID", "v-male-s5NqE0rZ")
+
 
 def generate_signature(params):
     """生成签名"""
@@ -123,14 +127,24 @@ class TTSWebSocketClient:
             "SessionId": "",
             "MessageId": str(uuid.uuid4()),
             "Data": {
+                "Language": "zh",
+                "Model": MODEL,
+                "AudioFormat": {
+                    "Format": "pcm",
+                    "SampleRate": 24000,
+                    "BitRate": 128,
+                },
                 "Voice": {
-                    "VoiceId": "v-male-s5NqE0rZ"
-                }
-            }
+                    "VoiceId": VOICE_ID,
+                    "Speed": 1.0,
+                    "Volume": 1.0,
+                    "Pitch": 0,
+                },
+            },
         }
 
         await self.ws.send_str(json.dumps(message, ensure_ascii=False))
-        print("已发送StartSession")
+        print(f"已发送StartSession (Model={MODEL}, VoiceId={VOICE_ID})")
 
     async def send_text_stream(self):
         """流式发送文本"""

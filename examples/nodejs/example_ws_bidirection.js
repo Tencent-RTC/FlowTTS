@@ -14,6 +14,10 @@ import { loadConfig } from "./utils.js";
 
 const HOST = "flowtts.cloud.tencent.com";
 
+// TTS 模型：留空使用服务端默认（flow_02_turbo），也可显式指定
+const MODEL = process.env.FLOW_TTS_MODEL || "flow_02_turbo";
+const VOICE_ID = process.env.FLOW_TTS_VOICE_ID || "v-male-s5NqE0rZ";
+
 function generateSignature(params, secretKey) {
   const sortedParams = Object.entries(params).sort(([a], [b]) =>
     a.localeCompare(b)
@@ -128,14 +132,24 @@ class TTSWebSocketClient {
       SessionId: "",
       MessageId: crypto.randomUUID(),
       Data: {
+        Language: "zh",
+        Model: MODEL,
+        AudioFormat: {
+          Format: "pcm",
+          SampleRate: 24000,
+          BitRate: 128,
+        },
         Voice: {
-          VoiceId: "v-male-s5NqE0rZ",
+          VoiceId: VOICE_ID,
+          Speed: 1.0,
+          Volume: 1.0,
+          Pitch: 0,
         },
       },
     };
 
     this.ws.send(JSON.stringify(message));
-    console.log("已发送StartSession");
+    console.log(`已发送StartSession (Model=${MODEL}, VoiceId=${VOICE_ID})`);
   }
 
   async sendTextStream() {

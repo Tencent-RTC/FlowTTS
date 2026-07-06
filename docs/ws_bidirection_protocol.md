@@ -135,6 +135,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&ConnectionId=abc1
   "MessageId": "msg-001",
   "Data": {
     "Language": "zh",
+    "Model": "flow_02_turbo",
     "AudioFormat": {
       "Format": "pcm",
       "SampleRate": 24000,
@@ -155,6 +156,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&ConnectionId=abc1
 | 字段 | 类型 | 必填 | 默认值 | 说明 |
 |------|------|------|--------|------|
 | Language | String | 否 | zh | 需要合成的语言（ISO 639-1），支持 zh（中文）、en（英文）、ja（日语）、ko（韩语）、yue（粤语）、ms（马来语）、ar（阿拉伯语）、id（印尼语）、th（泰语）、vi（越南语），不传默认 zh |
+| Model | String | 否 | flow_02_turbo | TTS 模型名称，可选值参考音色列表中每个音色支持的模型；不传使用默认 `flow_02_turbo` |
 | AudioFormat.Format | String | 否 | pcm | 音频格式（pcm/mp3）|
 | AudioFormat.SampleRate | Integer | 否 | 24000 | 生成的音频采样率，默认24000，支持16000和24000  |
 | AudioFormat.BitRate | Integer | 否 | 128 | MP3 比特率（kbps），仅对 MP3 格式生效，可选值：64、128、192、256 |
@@ -516,6 +518,7 @@ class TTSWebSocketClient:
             "SessionId": "",
             "MessageId": str(uuid.uuid4()),
             "Data": {
+                "Model": "flow_02_turbo",
                 "Voice": {
                     "VoiceId": "v-male-s5NqE0rZ"
                 }
