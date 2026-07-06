@@ -29,6 +29,12 @@ go run ./non_streaming
 
 # Voice clone, prints VoiceId
 go run ./voice_clone
+
+# WebSocket bidirectional streaming (client streams text, server streams audio)
+go run ./ws_bidirection
+
+# Override model / voice via env
+FLOW_TTS_MODEL=flow_01_ex FLOW_TTS_VOICE_ID=male-qn-qingse go run ./ws_bidirection
 ```
 
 Generated audio files are saved in `examples/golang`.
