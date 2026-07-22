@@ -157,9 +157,30 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&ConnectionId=abc1
 |------|------|------|--------|------|
 | Language | String | 否 | zh | 需要合成的语言（ISO 639-1），支持 zh（中文）、en（英文）、ja（日语）、ko（韩语）、yue（粤语）、ms（马来语）、ar（阿拉伯语）、id（印尼语）、th（泰语）、vi（越南语），不传默认 zh |
 | Model | String | 否 | flow_02_turbo | TTS 模型名称，可选值参考音色列表中每个音色支持的模型；不传使用默认 `flow_02_turbo` |
-| AudioFormat.Format | String | 否 | pcm | 音频格式（pcm/mp3）|
+| AudioFormat.Format | String | 否 | pcm | 音频格式（pcm/mp3/opus），详见 [4.1.1 音频格式说明](#411-音频格式说明) |
 | AudioFormat.SampleRate | Integer | 否 | 24000 | 生成的音频采样率，默认24000，支持16000和24000  |
-| AudioFormat.BitRate | Integer | 否 | 128 | MP3 比特率（kbps），仅对 MP3 格式生效，可选值：64、128、192、256 |
+| AudioFormat.BitRate | Integer | 否 | 128 | MP3 比特率（kbps），仅对 MP3 格式生效，可选值：64、128、192、256；pcm 与 opus 会忽略该字段 |
+
+#### 4.1.1 音频格式说明
+
+| Format | 返回内容 | 采样率 | 直接拼接可用 | 典型体积（约 5 秒中文） |
+|--------|----------|--------|--------------|--------------------------|
+| `pcm` | 16bit 单声道小端裸 PCM，无文件头 | 16000 / 24000 | 是，落盘时自行补 WAV 头 | ~209 KB（24000Hz） |
+| `mp3` | MP3 帧流 | 16000 / 24000 | 是 | ~76 KB（128kbps） |
+| `opus` | **Ogg 封装的 Opus**（每个页以 `OggS` 开头） | 16000 / 24000 | 是（得到 chained Ogg，见下） | ~24 KB |
+
+**使用 opus 需要注意：**
+
+1. **返回的是 Ogg Opus，不是裸 Opus 包**。首个分片以 `OggS` 魔数开头，随后是 `OpusHead` / `OpusTags` 头包，可直接写成 `.ogg` 文件播放。
+2. **每个句子是一条独立完整的 Ogg 流**（各自带 BOS/EOS 页与 `OpusHead`）。把整个会话的分片顺序拼接会得到 chained Ogg：ffmpeg、VLC 等能完整播放全部句子，但部分浏览器 / 播放器只会解出第一段。跨端分发前建议转码一次：
+
+   ```bash
+   ffmpeg -i session.ogg -c:a libopus session_single.ogg
+   ```
+
+   如果是边收边播的实时场景，更稳妥的做法是**按句喂给解码器**，一句一条流，天然避开 chained Ogg 的兼容性问题。
+3. `OpusHead` 中的输入采样率与请求的 `SampleRate` 一致（16000 或 24000），但 Opus 解码输出恒为 48000Hz，这是 Opus 规范行为，不代表参数未生效。
+4. **`BitRate` 对 opus 不生效**，实际码率由编码器自适应（约 40kbps）。需要压缩率优先时直接选 opus 即可，体积约为 128kbps MP3 的 1/3、PCM 的 1/9。
 | Voice.VoiceId | String | 是 | 无 | 音色 ID，可从音色列表获取，或使用声音克隆生成的自定义音色 ID |
 | Voice.Speed | Float | 否 | 1.0 | 语速调节，0.5 为半速，2.0 为两倍速，1.0 为正常语速，区间 [0.5, 2.0] |
 | Voice.Volume | Float | 否 | 1.0 | 音量调节，建议保持默认值 1.0，区间 (0, 10]（必须大于 0） |
@@ -279,7 +300,7 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&ConnectionId=abc1
 
 ### 5.3 SentenceAudio - 句子音频数据
 
-每个句子合成完成后，服务端发送此事件返回音频数据。
+服务端流式返回句子音频。**同一个句子会被拆成多个 `SentenceAudio` 分片先后下发**，它们的 `SentenceId` 相同，客户端按到达顺序拼接即可；该句最后一条消息的 `IsEnd` 为 `true`，其 `Audio` 通常为空，仅作结束标记。
 
 **消息格式**：
 ```json
@@ -302,10 +323,10 @@ GET/api/v1/flow_tts/bidirection?Action=TextToSpeechBidirection&ConnectionId=abc1
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| SentenceId | Integer | 句子序号（从1开始） |
+| SentenceId | Integer | 句子序号（从1开始），同一句的多个分片该值相同 |
 | Sentence | String | 原始文本 |
-| Audio | String | Base64编码的音频数据 |
-| Duration | Float | 音频时长（秒） |
+| Audio | String | Base64编码的音频分片数据，`IsEnd=true` 的收尾消息中通常为空 |
+| Duration | Float | 音频时长（秒）；流式分片下该值可能为 0，整段时长请以 `SessionEnd` 的 `TotalDuration` 为准 |
 | IsEnd | Boolean | 该句的合成是否结束 |
 
 ### 5.4 SessionError - 会话级别错误

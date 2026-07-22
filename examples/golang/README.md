@@ -35,6 +35,17 @@ go run ./ws_bidirection
 
 # Override model / voice via env
 FLOW_TTS_MODEL=flow_01_ex FLOW_TTS_VOICE_ID=male-qn-qingse go run ./ws_bidirection
+
+# WebSocket with opus output (Ogg-encapsulated, saved as .ogg)
+FLOW_TTS_FORMAT=opus go run ./ws_bidirection
 ```
+
+The WebSocket example saves the received audio and reads these env vars:
+
+| Env | Values | Default | Note |
+|-----|--------|---------|------|
+| `FLOW_TTS_FORMAT` | `pcm` / `mp3` / `opus` | `pcm` | `pcm` is saved as `.wav`, `opus` as `.ogg` |
+| `FLOW_TTS_SAMPLE_RATE` | `16000` / `24000` | `24000` | |
+| `FLOW_TTS_BITRATE` | `64` / `128` / `192` / `256` | `128` | mp3 only |
 
 Generated audio files are saved in `examples/golang`.

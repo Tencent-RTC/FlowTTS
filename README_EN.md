@@ -160,6 +160,17 @@ go run ./non_streaming
 
 # Voice cloning
 go run ./voice_clone
+
+# WebSocket bidirectional streaming
+go run ./ws_bidirection
+```
+
+The WebSocket examples in all three languages save the audio to disk and accept these
+environment variables: `FLOW_TTS_FORMAT` (`pcm`|`mp3`|`opus`), `FLOW_TTS_SAMPLE_RATE`
+(`16000`|`24000`), `FLOW_TTS_BITRATE` (mp3 only), `FLOW_TTS_MODEL`, `FLOW_TTS_VOICE_ID`:
+
+```bash
+FLOW_TTS_FORMAT=opus python examples/python/example_ws_bidirection.py
 ```
 
 #### Voice Clone Example
@@ -206,8 +217,15 @@ The script calls non-streaming `TextToSpeech` with `Model=flow_01_ex` and saves 
 |----------|---------|--------------|
 | Streaming (SSE) | pcm | 16000, 24000 |
 | Non-streaming | pcm, wav, mp3 | 16000, 24000 |
+| WebSocket bidirectional | pcm, mp3, opus | 16000, 24000 |
 
 > Default format: pcm, default sample rate: 24000
+
+**opus (WebSocket bidirectional only)**: returns Ogg-encapsulated Opus at roughly 40kbps —
+about 1/3 the size of 128kbps MP3 and 1/9 of PCM, which suits real-time links on poor networks.
+Note that each sentence is a self-contained Ogg stream (concatenating them yields a chained Ogg)
+and `BitRate` has no effect on opus. See
+[WebSocket protocol · audio formats](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/ws_bidirection_protocol.md#411-音频格式说明).
 
 ### API Endpoint
 

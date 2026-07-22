@@ -172,7 +172,21 @@ node examples/nodejs/example_flow_01_ex_clone_inference.js
 | 非流式合成 | `example_non_streaming.py` | `example_non_streaming.js` | `go run ./non_streaming` | 一次性返回完整音频，适合离线/异步生成 |
 | 声音克隆 | `example_voice_clone.py` | `example_voice_clone.js` | `go run ./voice_clone` | 上传音频样本，得到自定义 `VoiceId` |
 | `flow_01_ex` 默认音色推理 / 克隆推理 | `example_flow_01_ex_clone_inference.py` | `example_flow_01_ex_clone_inference.js` | - | 指定 `Model=flow_01_ex`，默认 `VoiceId=female-shaonv`；可开启 clone 模式后用克隆 `VoiceId` 推理生成 MP3 |
-| WebSocket 双向流式 | `example_ws_bidirection.py` | `example_ws_bidirection.js` | - | 边发文本边收音频，适合 LLM 流式输出对接 |
+| WebSocket 双向流式 | `example_ws_bidirection.py` | `example_ws_bidirection.js` | `go run ./ws_bidirection` | 边发文本边收音频，适合 LLM 流式输出对接；支持 pcm/mp3/opus |
+
+三端的 WebSocket 示例都会把音频落盘，并支持用环境变量切换参数：
+
+```bash
+# 默认 pcm（自动补 WAV 头保存为 .wav）
+python examples/python/example_ws_bidirection.py
+
+# opus：体积最小，保存为 .ogg
+FLOW_TTS_FORMAT=opus python examples/python/example_ws_bidirection.py
+
+# 可组合的环境变量
+# FLOW_TTS_FORMAT=pcm|mp3|opus  FLOW_TTS_SAMPLE_RATE=16000|24000
+# FLOW_TTS_BITRATE=64|128|192|256（仅 mp3）  FLOW_TTS_MODEL / FLOW_TTS_VOICE_ID
+```
 
 ## 如何选择接口
 
@@ -199,8 +213,11 @@ node examples/nodejs/example_flow_01_ex_clone_inference.js
 |----------|----------|--------|
 | 流式 (SSE) | pcm | 16000, 24000 |
 | 非流式 | pcm, wav, mp3 | 16000, 24000 |
+| WebSocket 双向流式 | pcm, mp3, opus | 16000, 24000 |
 
 > 默认格式：pcm，默认采样率：24000
+
+**opus（仅 WebSocket 双向流式）**：返回 Ogg 封装的 Opus，约 40kbps，体积约为 128kbps MP3 的 1/3、PCM 的 1/9，适合弱网实时链路。注意每个句子是一条独立的 Ogg 流，拼接后为 chained Ogg，`BitRate` 参数对其不生效 —— 细节见 [WebSocket 双向流式协议 · 音频格式说明](https://github.com/Tencent-RTC/FlowTTS/blob/main/docs/ws_bidirection_protocol.md#411-音频格式说明)。
 
 ### API Endpoint
 

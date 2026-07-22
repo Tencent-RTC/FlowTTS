@@ -27,9 +27,21 @@ import (
 
 const host = "flowtts.cloud.tencent.com"
 
+// 保存文件的扩展名：pcm 会补上 WAV 头，opus 保存为 .ogg
+var fileExt = map[string]string{"pcm": "wav", "mp3": "mp3", "opus": "ogg"}
+
 func envDefault(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
+	}
+	return fallback
+}
+
+func envInt(key string, fallback int) int {
+	if v := os.Getenv(key); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			return n
+		}
 	}
 	return fallback
 }
@@ -89,7 +101,11 @@ type client struct {
 	sessionID    string
 	model        string
 	voiceID      string
+	audioFormat  string
+	sampleRate   int
+	bitRate      int
 	texts        []string
+	audioChunks  [][]byte // 收到的音频分片，按到达顺序拼接
 	done         chan struct{}
 }
 
@@ -107,9 +123,9 @@ func (c *client) startSession() error {
 			"Language": "zh",
 			"Model":    c.model,
 			"AudioFormat": map[string]interface{}{
-				"Format":     "pcm",
-				"SampleRate": 24000,
-				"BitRate":    128,
+				"Format":     c.audioFormat,
+				"SampleRate": c.sampleRate,
+				"BitRate":    c.bitRate,
 			},
 			"Voice": map[string]interface{}{
 				"VoiceId": c.voiceID,
@@ -122,8 +138,38 @@ func (c *client) startSession() error {
 	if err := c.send(msg); err != nil {
 		return err
 	}
-	fmt.Printf("已发送StartSession (Model=%s, VoiceId=%s)\n", c.model, c.voiceID)
+	fmt.Printf("已发送StartSession (Model=%s, VoiceId=%s, Format=%s, SampleRate=%d)\n",
+		c.model, c.voiceID, c.audioFormat, c.sampleRate)
 	return nil
+}
+
+// saveAudio 把收到的音频分片拼接落盘
+func (c *client) saveAudio() {
+	if len(c.audioChunks) == 0 {
+		return
+	}
+	var data []byte
+	for _, chunk := range c.audioChunks {
+		data = append(data, chunk...)
+	}
+	if c.audioFormat == "pcm" {
+		data = flowttsutil.PCMToWAV(data, uint32(c.sampleRate), 1, 16)
+	}
+	ext, ok := fileExt[c.audioFormat]
+	if !ok {
+		ext = c.audioFormat
+	}
+	filename := fmt.Sprintf("ws_bidirection_%s_%d.%s", c.voiceID, time.Now().Unix(), ext)
+	if err := os.WriteFile(filename, data, 0o644); err != nil {
+		fmt.Printf("保存音频失败: %v\n", err)
+		return
+	}
+	fmt.Printf("音频已保存: %s (%d 字节)\n", filename, len(data))
+	if c.audioFormat == "opus" {
+		// 每句是一条独立的 Ogg 流，直接拼接得到 chained Ogg：
+		// ffmpeg / VLC 可正常播放，部分浏览器只会播第一段，需要时转码即可
+		fmt.Printf("提示: 如需单流文件可执行 ffmpeg -i %s out.wav\n", filename)
+	}
 }
 
 func (c *client) sendTextStream() {
@@ -189,7 +235,16 @@ func (c *client) handleMessage(raw []byte) {
 			IsEnd      bool    `json:"IsEnd"`
 		}
 		_ = json.Unmarshal(msg.Data, &data)
-		fmt.Printf("收到句子: %s (音频: %d 字符)\n", data.Sentence, len(data.Audio))
+		audio, err := base64.StdEncoding.DecodeString(data.Audio)
+		if err != nil {
+			fmt.Printf("音频解码失败: %v\n", err)
+			return
+		}
+		if len(audio) > 0 {
+			c.audioChunks = append(c.audioChunks, audio)
+		}
+		fmt.Printf("收到句子[%d]: %s (音频: %d 字节, IsEnd=%v)\n",
+			data.SentenceID, data.Sentence, len(audio), data.IsEnd)
 
 	case "SessionEnd":
 		var data struct {
@@ -199,6 +254,7 @@ func (c *client) handleMessage(raw []byte) {
 		}
 		_ = json.Unmarshal(msg.Data, &data)
 		fmt.Printf("会话结束 - 句子数: %d, 时长: %.2f秒\n", data.TotalSentences, data.TotalDuration)
+		c.saveAudio()
 		_ = c.ws.WriteMessage(websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 		close(c.done)
@@ -221,8 +277,12 @@ func main() {
 	c := &client{
 		model:   envDefault("FLOW_TTS_MODEL", "flow_02_turbo"),
 		voiceID: envDefault("FLOW_TTS_VOICE_ID", "v-male-s5NqE0rZ"),
-		texts:   []string{"今天天气", "真好！", "你那边", "怎么样？", "我这边阳光明媚。"},
-		done:    make(chan struct{}),
+		// 音频格式：pcm / mp3 / opus（opus 为 Ogg 封装，每句一条独立 Ogg 流）
+		audioFormat: envDefault("FLOW_TTS_FORMAT", "pcm"),
+		sampleRate:  envInt("FLOW_TTS_SAMPLE_RATE", 24000),
+		bitRate:     envInt("FLOW_TTS_BITRATE", 128), // 仅 mp3 生效
+		texts:       []string{"今天天气", "真好！", "你那边", "怎么样？", "我这边阳光明媚。"},
+		done:        make(chan struct{}),
 	}
 
 	wsURL, connectionID := generateURL(cfg)

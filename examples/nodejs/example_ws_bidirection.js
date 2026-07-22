@@ -9,6 +9,7 @@
  */
 
 import crypto from "crypto";
+import fs from "fs";
 import WebSocket from "ws";
 import { loadConfig } from "./utils.js";
 
@@ -17,6 +18,34 @@ const HOST = "flowtts.cloud.tencent.com";
 // TTS 模型：留空使用服务端默认（flow_02_turbo），也可显式指定
 const MODEL = process.env.FLOW_TTS_MODEL || "flow_02_turbo";
 const VOICE_ID = process.env.FLOW_TTS_VOICE_ID || "v-male-s5NqE0rZ";
+
+// 音频格式：pcm / mp3 / opus（opus 为 Ogg 封装，每句一条独立 Ogg 流）
+const AUDIO_FORMAT = process.env.FLOW_TTS_FORMAT || "pcm";
+const SAMPLE_RATE = parseInt(process.env.FLOW_TTS_SAMPLE_RATE || "24000", 10);
+const BIT_RATE = parseInt(process.env.FLOW_TTS_BITRATE || "128", 10); // 仅 mp3 生效
+
+// 保存文件的扩展名：pcm 会补上 WAV 头，opus 保存为 .ogg
+const FILE_EXT = { pcm: "wav", mp3: "mp3", opus: "ogg" };
+
+/** 给裸 PCM 数据补上 WAV 头 */
+function pcmToWav(pcm, sampleRate, channels = 1, bits = 16) {
+  const byteRate = (sampleRate * channels * bits) / 8;
+  const blockAlign = (channels * bits) / 8;
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0);
+  header.writeUInt32LE(36 + pcm.length, 4);
+  header.write("WAVEfmt ", 8);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(channels, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(byteRate, 28);
+  header.writeUInt16LE(blockAlign, 32);
+  header.writeUInt16LE(bits, 34);
+  header.write("data", 36);
+  header.writeUInt32LE(pcm.length, 40);
+  return Buffer.concat([header, pcm]);
+}
 
 function generateSignature(params, secretKey) {
   const sortedParams = Object.entries(params).sort(([a], [b]) =>
@@ -65,6 +94,7 @@ class TTSWebSocketClient {
     this.ws = null;
     this.connectionId = null;
     this.sessionId = null;
+    this.audioChunks = []; // 收到的音频分片，按到达顺序拼接
   }
 
   connect(cfg) {
@@ -108,13 +138,19 @@ class TTSWebSocketClient {
       this.sendTextStream().catch(console.error);
     } else if (event === "SentenceAudio") {
       const data = msg.Data || {};
-      const audioLen = (data.Audio || "").length;
-      console.log(`收到句子: ${data.Sentence} (音频: ${audioLen} 字符)`);
+      const audio = Buffer.from(data.Audio || "", "base64");
+      if (audio.length > 0) {
+        this.audioChunks.push(audio);
+      }
+      console.log(
+        `收到句子[${data.SentenceId}]: ${data.Sentence} (音频: ${audio.length} 字节, IsEnd=${data.IsEnd})`
+      );
     } else if (event === "SessionEnd") {
       const data = msg.Data || {};
       console.log(
         `会话结束 - 句子数: ${data.TotalSentences}, 时长: ${data.TotalDuration}秒`
       );
+      this.saveAudio();
       this.ws.close();
     } else if (event === "SessionError") {
       const data = msg.Data || {};
@@ -122,6 +158,24 @@ class TTSWebSocketClient {
     } else if (event === "SentenceError") {
       const data = msg.Data || {};
       console.log(`句子错误: ${JSON.stringify(data)}`);
+    }
+  }
+
+  /** 把收到的音频分片拼接落盘 */
+  saveAudio() {
+    if (this.audioChunks.length === 0) return;
+    let data = Buffer.concat(this.audioChunks);
+    if (AUDIO_FORMAT === "pcm") {
+      data = pcmToWav(data, SAMPLE_RATE);
+    }
+    const ext = FILE_EXT[AUDIO_FORMAT] || AUDIO_FORMAT;
+    const filename = `ws_bidirection_${VOICE_ID}_${Math.floor(Date.now() / 1000)}.${ext}`;
+    fs.writeFileSync(filename, data);
+    console.log(`音频已保存: ${filename} (${data.length} 字节)`);
+    if (AUDIO_FORMAT === "opus") {
+      // 每句是一条独立的 Ogg 流，直接拼接得到 chained Ogg：
+      // ffmpeg / VLC 可正常播放，部分浏览器只会播第一段，需要时转码即可
+      console.log(`提示: 如需单流文件可执行 ffmpeg -i ${filename} out.wav`);
     }
   }
 
@@ -135,9 +189,9 @@ class TTSWebSocketClient {
         Language: "zh",
         Model: MODEL,
         AudioFormat: {
-          Format: "pcm",
-          SampleRate: 24000,
-          BitRate: 128,
+          Format: AUDIO_FORMAT,
+          SampleRate: SAMPLE_RATE,
+          BitRate: BIT_RATE,
         },
         Voice: {
           VoiceId: VOICE_ID,
@@ -149,7 +203,9 @@ class TTSWebSocketClient {
     };
 
     this.ws.send(JSON.stringify(message));
-    console.log(`已发送StartSession (Model=${MODEL}, VoiceId=${VOICE_ID})`);
+    console.log(
+      `已发送StartSession (Model=${MODEL}, VoiceId=${VOICE_ID}, Format=${AUDIO_FORMAT}, SampleRate=${SAMPLE_RATE})`
+    );
   }
 
   async sendTextStream() {

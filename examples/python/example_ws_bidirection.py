@@ -5,6 +5,7 @@ import json
 import time
 import hmac
 import hashlib
+import struct
 import urllib.parse as parse
 import uuid
 import base64
@@ -21,6 +22,24 @@ HOST = "flowtts.cloud.tencent.com"
 # TTS 模型：留空使用服务端默认（flow_02_turbo），也可显式指定
 MODEL = os.getenv("FLOW_TTS_MODEL", "flow_02_turbo")
 VOICE_ID = os.getenv("FLOW_TTS_VOICE_ID", "v-male-s5NqE0rZ")
+
+# 音频格式：pcm / mp3 / opus（opus 为 Ogg 封装，每句一条独立 Ogg 流）
+AUDIO_FORMAT = os.getenv("FLOW_TTS_FORMAT", "pcm")
+SAMPLE_RATE = int(os.getenv("FLOW_TTS_SAMPLE_RATE", "24000"))
+BIT_RATE = int(os.getenv("FLOW_TTS_BITRATE", "128"))  # 仅 mp3 生效
+
+# 保存文件的扩展名：pcm 会补上 WAV 头，opus 保存为 .ogg
+FILE_EXT = {"pcm": "wav", "mp3": "mp3", "opus": "ogg"}
+
+
+def pcm_to_wav(pcm: bytes, sample_rate: int, channels: int = 1, bits: int = 16) -> bytes:
+    """给裸 PCM 数据补上 WAV 头"""
+    byte_rate = sample_rate * channels * bits // 8
+    block_align = channels * bits // 8
+    header = b"RIFF" + struct.pack("<I", 36 + len(pcm)) + b"WAVEfmt "
+    header += struct.pack("<IHHIIHH", 16, 1, channels, sample_rate, byte_rate, block_align, bits)
+    header += b"data" + struct.pack("<I", len(pcm))
+    return header + pcm
 
 
 def generate_signature(params):
@@ -60,6 +79,7 @@ class TTSWebSocketClient:
         self.connection_id = None
         self.session_id = None
         self.session = None
+        self.audio_chunks = []  # 收到的音频分片，按到达顺序拼接
 
     async def connect(self):
         """建立WebSocket连接"""
@@ -104,11 +124,16 @@ class TTSWebSocketClient:
 
         elif event == "SentenceAudio":
             data = msg.get("Data", {})
-            print(f"收到句子: {data.get('Sentence')} (音频: {len(data.get('Audio', ''))} 字符)")
+            audio = base64.b64decode(data.get("Audio", ""))
+            if audio:
+                self.audio_chunks.append(audio)
+            print(f"收到句子[{data.get('SentenceId')}]: {data.get('Sentence')} "
+                  f"(音频: {len(audio)} 字节, IsEnd={data.get('IsEnd')})")
 
         elif event == "SessionEnd":
             data = msg.get("Data", {})
             print(f"会话结束 - 句子数: {data.get('TotalSentences')}, 时长: {data.get('TotalDuration')}秒")
+            self.save_audio()
             await self.ws.close()
 
         elif event == "SessionError":
@@ -118,6 +143,23 @@ class TTSWebSocketClient:
         elif event == "SentenceError":
             error_data = msg.get("Data", {})
             print(f"句子错误: {error_data}")
+
+    def save_audio(self):
+        """把收到的音频分片拼接落盘"""
+        if not self.audio_chunks:
+            return
+        data = b"".join(self.audio_chunks)
+        if AUDIO_FORMAT == "pcm":
+            data = pcm_to_wav(data, SAMPLE_RATE)
+        ext = FILE_EXT.get(AUDIO_FORMAT, AUDIO_FORMAT)
+        filename = f"ws_bidirection_{VOICE_ID}_{int(time.time())}.{ext}"
+        with open(filename, "wb") as f:
+            f.write(data)
+        print(f"音频已保存: {filename} ({len(data)} 字节)")
+        if AUDIO_FORMAT == "opus":
+            # 每句是一条独立的 Ogg 流，直接拼接得到 chained Ogg：
+            # ffmpeg / VLC 可正常播放，部分浏览器只会播第一段，需要时转码即可
+            print(f"提示: 如需单流文件可执行 ffmpeg -i {filename} out.wav")
 
     async def start_session(self):
         """开始会话"""
@@ -130,9 +172,9 @@ class TTSWebSocketClient:
                 "Language": "zh",
                 "Model": MODEL,
                 "AudioFormat": {
-                    "Format": "pcm",
-                    "SampleRate": 24000,
-                    "BitRate": 128,
+                    "Format": AUDIO_FORMAT,
+                    "SampleRate": SAMPLE_RATE,
+                    "BitRate": BIT_RATE,
                 },
                 "Voice": {
                     "VoiceId": VOICE_ID,
@@ -144,7 +186,8 @@ class TTSWebSocketClient:
         }
 
         await self.ws.send_str(json.dumps(message, ensure_ascii=False))
-        print(f"已发送StartSession (Model={MODEL}, VoiceId={VOICE_ID})")
+        print(f"已发送StartSession (Model={MODEL}, VoiceId={VOICE_ID}, "
+              f"Format={AUDIO_FORMAT}, SampleRate={SAMPLE_RATE})")
 
     async def send_text_stream(self):
         """流式发送文本"""

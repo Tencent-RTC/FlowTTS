@@ -56,6 +56,8 @@ node_modules/
 !test_data/*.wav
 *.pcm
 *.mp3
+*.ogg
+*.opus
 output/
 
 # Logs
